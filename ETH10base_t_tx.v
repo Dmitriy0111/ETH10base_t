@@ -2,10 +2,11 @@ module ETH10base_t_tx
 (
 	input	clk,
 	input 	rst_n,
-	input	TxData,
 	output	Txp,
-	output	Txn
+	output	Txn,
+	output 	Led_Tx
 );
+
 wire clk_10m;
 wire eth_data_s;
 //reg	TxClock;
@@ -43,6 +44,8 @@ assign Txn_frame = Tx_frame == 1'b1 ? ~eth_data_s_manch : 1'b0 ;
 assign Txn = Txn_frame | Txn_nlp | Txn_idle;
 assign Txp = Txp_frame | Txp_nlp | Txp_idle;
 
+assign Led_Tx = ~ (Tx_frame | Tx_idle);
+
 always @(posedge clk) begin
 	clkDiv<=~clkDiv;
 end
@@ -61,7 +64,8 @@ eth_frame eth_frame_0
 	.rst_n(rst_n),
 	.eth_data_s(eth_data_s),
 	.enable(1'b1),
-	.Tx        (Tx_frame)
+	.Tx        (Tx_frame),
+	.Tx_idle(Tx_idle)
 );
 
 initial

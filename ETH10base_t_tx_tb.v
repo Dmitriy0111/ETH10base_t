@@ -2,22 +2,19 @@
 
 module ETH10base_t_tx_tb ();
 
-wire TxData;
+wire Led_Tx;
 reg	clk;
-reg TxDataMem [99:0];
 wire Txp;
 wire Txn;
 reg rst_n;
 
-integer i;
-assign TxData = TxDataMem[i];
 
 ETH10base_t_tx ETH10base_t_tx_0
 (
 	.clk(clk),
-	.TxData(TxData),
+	.Led_Tx(Led_Tx),
 	.Txp(Txp),
-	.Txn   (Txn),
+	.Txn  (Txn),
 	.rst_n(rst_n)
 );
 
@@ -32,9 +29,5 @@ begin
 	rst_n<=1'b1;
 end
 
-initial
-begin
-	$readmemh("/home/vlasovdv0111/ETH10base_t/TxDataMem.hex",TxDataMem);
-end
 
 endmodule

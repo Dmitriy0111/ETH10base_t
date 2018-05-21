@@ -18,7 +18,7 @@ reg	[7:0]	eth_data_reg;
 reg	[$clog2(eth_frame_length)-1:0]	addr;
 reg	[1:0]	state;
 reg [2:0]	count;
-assign eth_data_s = eth_data_reg[3'h7-count];
+assign eth_data_s = eth_data_reg[count];
 
 localparam 	WAIS_S		= 2'b00 ,
 			BROADCAST_S	= 2'b01 ,
@@ -57,7 +57,7 @@ begin
 					addr <= addr + 1'b1 ;
 					eth_data_reg <= eth_data[addr];
 				end
-				if( addr == addr_max )
+				if( (addr == addr_max) && (count == 3'h7)  )
 				begin
 					addr <= addr_zero;
 					count <= 3'd0 ;

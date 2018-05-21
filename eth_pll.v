@@ -295,7 +295,7 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL eth_pll.inc FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL eth_pll.cmp FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL eth_pll.bsf FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL eth_pll_inst.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL eth_pll_inst.v TRUE
 // Retrieval info: GEN_FILE: TYPE_NORMAL eth_pll_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf
 // Retrieval info: CBX_MODULE_PREFIX: ON
