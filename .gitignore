@@ -4,4 +4,8 @@
 /simulation
 /greybox_tmp
 *.bak
-
+/.qsys_edit
+*.rpt
+*.qdf
+*.vo
+*.sdo
