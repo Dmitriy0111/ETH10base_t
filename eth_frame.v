@@ -4,12 +4,14 @@ module eth_frame
     input        clk,
     input        rst_n,
     output       eth_data_s,
-    output       Tx_w
+	 output		  Tx_w
 );
 
 localparam eth_frame_length = 'd128 ;
 localparam addr_max         = {$clog2(eth_frame_length){1'b1}} ;
 localparam addr_zero        = {$clog2(eth_frame_length){1'b0}} ;
+
+//assign TxD = eth_data_s | Tx_idle;
 
 reg [7:0]                           eth_data    [ eth_frame_length-1 : 0 ] ;
 reg [7:0]                           eth_data_reg ;
@@ -17,10 +19,10 @@ reg [$clog2(eth_frame_length)-1:0]  addr ;
 reg [1:0]                           state ;
 reg [2:0]                           count ;
 reg                                 manch ;
-reg                                 Tx      ;
-reg                                 Tx_idle ;
+reg   										Tx		;
+reg   										Tx_idle ;
 
-assign Tx_w       = Tx | Tx_idle;
+assign Tx_w			= Tx | Tx_idle;
 assign eth_data_s = ( ~ ( manch ^ eth_data_reg[count] ) ) | Tx_idle ;
 
 localparam  WAIS_S      = 2'b00 ,
@@ -43,7 +45,7 @@ begin
             begin
                 Tx      <= 1'b0 ;
                 manch   <= 1'b0 ;
-                     Tx_idle <= 1'b0 ;
+					 Tx_idle <= 1'b0 ;
                 if( transmit == 1'b1 )
                 begin
                     state        <= BROADCAST_S ;
@@ -67,7 +69,7 @@ begin
                     state   <= TP_IDLE ;
                     Tx_idle <= 1'b1 ;
                     Tx      <= 1'b0 ;
-                          eth_data_reg <= 8'b0;
+						  eth_data_reg <= 8'b0;
                 end
             end
         TP_IDLE:

@@ -17,6 +17,15 @@ wire Txn_TxD;
 wire Txp_TxD;
 wire Tx_w;
 
+wire [15:0] flp_data;
+wire [4:0]  sel_field    = 5'b10000;     //Selector field
+wire [7:0]  tech_field   = 8'b0000010;   //Technology ability field
+wire        fault_field  = 1'b0;         //remote fault
+wire        ack_field    = 1'b1;         //acknowledgement
+wire        n_page_field = 1'b0;         //next page
+
+assign flp_data = {n_page_field,ack_field,fault_field,tech_field,sel_field};
+
 eth_pll eth_pll_0
 (
     .inclk0 (   clk     ),
@@ -36,11 +45,12 @@ assign Txp = Txp_nlp | Txp_TxD ;
 
 assign Led_Tx = ~ ( Tx_w ) ;
 
-nlp nlp_0
+flp flp_0
     (
-        .clk    ( clk_20m   ),
-        .go     ( go        ),
-        .Tx     ( Tx_nlp    )
+        .clk      ( clk_20m   ),
+        .go       ( go        ),
+        .Tx       ( Tx_nlp    ),
+        .flp_data ( flp_data  )
     );
 
 eth_frame eth_frame_0
