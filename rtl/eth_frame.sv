@@ -1,10 +1,19 @@
+/*
+*  File            :   eth_frame.sv
+*  Autor           :   Vlasov D.V.
+*  Data            :   2018.05.18
+*  Language        :   SystemVerilog
+*  Description     :   This is ethernet frame module
+*  Copyright(c)    :   2018 - 2019 Vlasov D.V.
+*/
+
 module eth_frame
 (
-    input   logic   [0 : 0]     transmit,
     input   logic   [0 : 0]     clk,
     input   logic   [0 : 0]     resetn,
+    input   logic   [0 : 0]     transmit,
     output  logic   [0 : 0]     eth_data_s,
-    output  logic   [0 : 0]     Tx_w
+    output  logic   [0 : 0]     tx_w
 );
 
     localparam eth_frame_length = 'd128;
@@ -22,11 +31,11 @@ module eth_frame
     logic   [1    : 0]  state;
     logic   [2    : 0]  count;
     logic   [0    : 0]  manch;
-    logic   [0    : 0]  Tx;
-    logic   [0    : 0]  Tx_idle;
+    logic   [0    : 0]  tx;
+    logic   [0    : 0]  tx_idle;
 
-    assign Tx_w = Tx | Tx_idle;
-    assign eth_data_s = ( ~ ( manch ^ eth_data_reg[count] ) ) | Tx_idle;
+    assign tx_w = tx | tx_idle;
+    assign eth_data_s = ( ~ ( manch ^ eth_data_reg[count] ) ) | tx_idle;
 
     always @(posedge clk or negedge resetn) 
     begin
@@ -34,8 +43,8 @@ module eth_frame
             begin
                 state   <= WAIS_s;
                 addr    <= addr_zero ;
-                Tx_idle <= '0;
-                Tx      <= '0;
+                tx_idle <= '0;
+                tx      <= '0;
                 manch   <= '0;
                 count   <= '0;
                 eth_data_reg <= '0;
@@ -44,14 +53,14 @@ module eth_frame
             case( state )
                 WAIS_s:
                 begin
-                    Tx      <= 1'b0;
+                    tx      <= 1'b0;
                     manch   <= 1'b0;
-    					 Tx_idle <= 1'b0;
+    					 tx_idle <= 1'b0;
                     if( transmit == 1'b1 )
                     begin
                         state        <= BROADCAST_s;
                         eth_data_reg <= eth_data[0];
-                        Tx           <=1'b1;
+                        tx           <=1'b1;
                     end
                 end
                 BROADCAST_s:
@@ -68,8 +77,8 @@ module eth_frame
                         addr    <= addr_zero;
                         count   <= 3'd0;
                         state   <= TP_IDLE_s;
-                        Tx_idle <= 1'b1;
-                        Tx      <= 1'b0;
+                        tx_idle <= 1'b1;
+                        tx      <= 1'b0;
     						  eth_data_reg <= 8'b0;
                     end
                 end
@@ -78,7 +87,7 @@ module eth_frame
                     count <= count + 1'b1;
                     if( count == 3'h5 )
                     begin
-                        Tx_idle <= 1'b0;
+                        tx_idle <= 1'b0;
                         count   <= 3'd0;
                         state   <= WAIS_s;
                     end
@@ -88,7 +97,7 @@ module eth_frame
 
     initial
     begin
-        $readmemh("../eth_frame.hex",eth_data);
+        $readmemh("../rtl/eth_frame.hex",eth_data);
     end
 
 endmodule
