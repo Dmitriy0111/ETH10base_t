@@ -13,7 +13,11 @@ module eth_10base_t_tx
     input   logic   [0 : 0]     resetn,
     output  logic   [0 : 0]     tx_p,
     output  logic   [0 : 0]     tx_n,
-    output  logic   [0 : 0]     led_tx
+    output  logic   [0 : 0]     led_tx,
+    output  logic   [0 : 0]     mem_rd,
+    input   logic   [7 : 0]     eth_in,
+    output  logic   [0 : 0]     t_complete,
+    input   logic   [0 : 0]     b_end
 );
 
     logic   [0  : 0]    eth_data_s;
@@ -54,7 +58,11 @@ module eth_10base_t_tx
         .clk        ( clk           ),
         .resetn     ( resetn        ),
         .eth_data_s ( eth_data_s    ),
-        .tx_w       ( tx_w          )
+        .tx_w       ( tx_w          ),
+        .mem_rd     ( mem_rd        ),
+        .eth_in     ( eth_in        ),
+        .t_complete ( t_complete    ),
+        .b_end      ( b_end         )
     );
 
 endmodule : eth_10base_t_tx

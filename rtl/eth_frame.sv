@@ -13,7 +13,11 @@ module eth_frame
     input   logic   [0 : 0]     resetn,
     input   logic   [0 : 0]     transmit,
     output  logic   [0 : 0]     eth_data_s,
-    output  logic   [0 : 0]     tx_w
+    output  logic   [0 : 0]     tx_w,
+    output  logic   [0 : 0]     mem_rd,
+    input   logic   [7 : 0]     eth_in,
+    output  logic   [0 : 0]     t_complete,
+    input   logic   [0 : 0]     b_end
 );
 
     localparam eth_frame_length = 'd128;
@@ -25,7 +29,7 @@ module eth_frame
                BROADCAST_s = 2'b01,
                TP_IDLE_s   = 2'b10;
 
-    logic   [7    : 0]  eth_data    [eth_frame_length-1 : 0];
+    logic   [1    : 0]  divider;
     logic   [7    : 0]  eth_data_reg;
     logic   [aw-1 : 0]  addr;
     logic   [1    : 0]  state;
@@ -41,8 +45,9 @@ module eth_frame
     begin
         if( ! resetn )
             begin
+                divider <= '0;
                 state   <= WAIS_s;
-                addr    <= addr_zero ;
+                addr    <= addr_zero;
                 tx_idle <= '0;
                 tx      <= '0;
                 manch   <= '0;
@@ -53,51 +58,61 @@ module eth_frame
             case( state )
                 WAIS_s:
                 begin
-                    tx      <= 1'b0;
-                    manch   <= 1'b0;
-    					 tx_idle <= 1'b0;
+                    tx      <= '0;
+                    manch   <= '0;
+                    tx_idle <= '0;
+                    divider <= '0;
+                    t_complete <= '0;
                     if( transmit == 1'b1 )
                     begin
                         state        <= BROADCAST_s;
-                        eth_data_reg <= eth_data[0];
-                        tx           <=1'b1;
+                        eth_data_reg <= eth_in;
+                        tx           <= '1;
+                        mem_rd       <= '1;
                     end
                 end
                 BROADCAST_s:
                 begin
+                    divider <= divider + 1'b1;
                     count <= count + manch;
                     manch <= ~ manch;
                     if( (count == 3'h7) && ( manch ) )
                     begin
                         addr         <= addr + 1'b1;
-                        eth_data_reg <= eth_data[addr + 1'b1];
+                        mem_rd       <= '1;
+                        eth_data_reg <= eth_in;
                     end
-                    if( (addr == addr_max) && (count == 3'h7) )
+                    if( (count == 3'h7) && ( b_end ) && ( manch ) )
                     begin
                         addr    <= addr_zero;
-                        count   <= 3'd0;
-                        state   <= TP_IDLE_s;
-                        tx_idle <= 1'b1;
-                        tx      <= 1'b0;
-    						  eth_data_reg <= 8'b0;
+                        count   <= '0;
+                        state   <= TP_IDLE;
+                        Tx_idle <= '1;
+                        Tx      <= '0;
+                        eth_data_reg <= '0;
+                        divider <= '0;
                     end
                 end
                 TP_IDLE_s:
                 begin
+                    mem_rd <= '0;
+                    divider <= divider + 1'b1;
                     count <= count + 1'b1;
-                    if( count == 3'h5 )
+                    if (divider == 2'b11 )
                     begin
-                        tx_idle <= 1'b0;
-                        count   <= 3'd0;
-                        state   <= WAIS_s;
+                        divider <= '0;
+                        count <= count + 1'b1;
+                        
+                        if( count == 3'h5 )
+                        begin
+                            Tx_idle <= '0;
+                            count   <= '0;
+                            state   <= WAIS_S;
+                            t_complete <= '1;
+                        end
                     end
                 end
             endcase
     end
 
-    initial
-    begin
-        $readmemh("../rtl/eth_frame.hex",eth_data);
-    end
-
-endmodule
+endmodule : eth_frame
